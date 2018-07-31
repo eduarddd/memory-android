@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.nightlydev.memory">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,7 +19,11 @@
             </intent-filter>
 
         </activity>
-        <activity android:name=".GameActivity" />
+
+        <activity android:name=".game.GameActivity"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity android:name=".game.DifficultySelectionActivity"
+            android:windowSoftInputMode="stateAlwaysHidden" />
 
 
     </application>
