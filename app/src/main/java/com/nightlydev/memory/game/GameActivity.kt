@@ -26,7 +26,6 @@ import kotlin.math.sqrt
  * Created by edu
  *
  * todo: add "flip" animation when clicking on a card
- * todo: calculate size of cards depending on card count and screen size
  * todo: save state of game
  */
 class GameActivity : AppCompatActivity() {

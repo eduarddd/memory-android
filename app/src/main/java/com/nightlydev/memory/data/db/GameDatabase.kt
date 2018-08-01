@@ -10,12 +10,6 @@ import com.nightlydev.memory.model.Score
 /**
  * @author edu (edusevilla90@gmail.com)
  * @since 1-8-18
- *
- * @Database(entities = [(CryptoCoin::class), FavoriteCryptoCoin::class], version = 1)
-abstract class CryptoCoinDatabase : RoomDatabase() {
-abstract fun cryptoCoinDao(): CryptoCoinDao
-abstract fun favoriteCryptoCoinDao(): FavoriteCryptoCoinDao
-}
  */
 @Database(entities = [Score::class], version = 1)
 @TypeConverters(Converters::class)

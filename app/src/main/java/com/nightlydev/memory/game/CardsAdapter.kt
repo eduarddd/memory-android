@@ -1,13 +1,14 @@
 package com.nightlydev.memory.game
 
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.nightlydev.memory.GlideApp
 import com.nightlydev.memory.R
+import com.nightlydev.memory.extensions.determineCardItemWidth
+import com.nightlydev.memory.extensions.determinegetCardItemHeight
 import com.nightlydev.memory.extensions.inflateView
 import com.nightlydev.memory.model.SelectableCard
 
@@ -20,30 +21,23 @@ class CardsAdapter : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
     var onItemClickListener: ((View, Int) -> Unit)? = null
 
     override fun onCreateViewHolder(container: ViewGroup, p1: Int): CardViewHolder {
-        return CardViewHolder(inflateView(container, R.layout.item_card))
+        val itemWidth = determineCardItemWidth(container, items.size)
+        val itemHeight = determinegetCardItemHeight(container, items.size)
+
+        return CardViewHolder(inflateView(container, R.layout.item_card)).apply {
+            itemView.layoutParams.width = itemWidth
+            itemView.layoutParams.height = itemHeight
+        }
     }
 
     override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
         val card = items[position]
+
         holder.itemView.setOnClickListener { onItemClickListener?.invoke(it, position) }
         holder.bindCard(card)
     }
-
-    /*
-     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
-        val card = items[position]
-        holder.itemView.setOnClickListener {
-            val context = holder.itemView.context
-            val front = holder.itemView.findViewById<View>(R.id.card_front)
-            val back = holder.itemView.findViewById<View>(R.id.card_back)
-            FlipAnimator.flipView(context, back, front,card.isSelected) { onItemClickListener?.invoke(it, position) }
-        }
-
-        holder.bindCard(card)
-    }
-    */
 
     fun setItems(items: List<SelectableCard>?) {
         if (items == null) {
