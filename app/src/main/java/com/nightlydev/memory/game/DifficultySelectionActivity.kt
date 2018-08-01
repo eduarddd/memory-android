@@ -3,7 +3,8 @@ package com.nightlydev.memory.game
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.nightlydev.memory.R
-import com.nightlydev.memory.game.Difficulty.*
+import com.nightlydev.memory.model.Difficulty
+import com.nightlydev.memory.model.Difficulty.*
 import kotlinx.android.synthetic.main.activity_difficulty_selection.*
 
 

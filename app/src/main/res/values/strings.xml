@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Memory</string>
+
+    <string name="label_time_count">Time: </string>
+    <string name="label_flip_count">Flips: </string>
+
+    <string name="alert_confirm_finish_game">Are you sure you want to leave the game?</string>
 </resources>

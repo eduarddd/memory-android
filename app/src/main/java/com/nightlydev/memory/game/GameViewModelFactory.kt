@@ -2,6 +2,7 @@ package com.nightlydev.memory.game
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
+import com.nightlydev.memory.model.Difficulty
 
 /**
  * Created by edu

@@ -1,4 +1,4 @@
-package com.nightlydev.memory.game
+package com.nightlydev.memory.model
 
 /**
  * Created by edu

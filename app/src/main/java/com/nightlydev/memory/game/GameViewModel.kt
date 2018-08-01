@@ -4,11 +4,17 @@ import android.arch.lifecycle.MediatorLiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.os.CountDownTimer
+import com.nightlydev.memory.App
+import com.nightlydev.memory.GlideApp
 import com.nightlydev.memory.data.PhotosRepository
 import com.nightlydev.memory.data.Resource
 import com.nightlydev.memory.data.Status
+import com.nightlydev.memory.data.flickrapi.PhotoSearchResponse
 import com.nightlydev.memory.data.flickrapi.getDownloadUrl
+import com.nightlydev.memory.model.Difficulty
 import com.nightlydev.memory.model.SelectableCard
+import java.util.*
+import kotlin.concurrent.schedule
 
 /**
  * Created by edu
@@ -16,48 +22,91 @@ import com.nightlydev.memory.model.SelectableCard
 class GameViewModel(val difficulty: Difficulty) : ViewModel() {
 
     val cards: MediatorLiveData<Resource<List<SelectableCard>>> = MediatorLiveData()
-    val pairs: MutableList<Pair<SelectableCard, SelectableCard>> = mutableListOf()
-    lateinit var countDownTimer: CountDownTimer
     val timeInSeconds: MutableLiveData<Long> = MutableLiveData()
-    var selectedPair: Pair<SelectableCard?, SelectableCard?> = Pair(null, null)
+    val pairFlipCount: MutableLiveData<Int> = MutableLiveData()
+    private val flippedCards: MutableList<SelectableCard> = mutableListOf()
+    private var firstSelectedCard: SelectableCard? = null
+
     private val photosRepository = PhotosRepository()
+    private lateinit var countDownTimer: CountDownTimer
 
     init {
-        initCards()
+        initGame()
+        pairFlipCount.value = 0
     }
 
-    private fun initCards() {
-        val searchSource = photosRepository.searchPhotos("kittens")
-        cards.addSource(searchSource){ photos ->
+    fun onCardSelected(card: SelectableCard) {
+        val cards = this.cards.value?.data!!
+        cards[cards.indexOf(card)].isSelected = true
+        this.cards.value = Resource.success(cards)
+
+        if (firstSelectedCard == null) {
+            firstSelectedCard = card
+        } else {
+            onPairSelected(Pair(firstSelectedCard!!, card))
+            firstSelectedCard = null
+        }
+    }
+
+    private fun onPairSelected(pair: Pair<SelectableCard, SelectableCard>) {
+        pairFlipCount.value = pairFlipCount.value?.plus(1)
+
+        if (pair.first.pairNumber == pair.second.pairNumber) {
+            flippedCards.add(pair.first)
+            flippedCards.add(pair.second)
+        } else {
+            Timer().schedule(500) { hideCards(pair) }
+        }
+    }
+
+    private fun hideCards(pair: Pair<SelectableCard, SelectableCard>) {
+        val cards = this.cards.value?.data!!
+        cards[cards.indexOf(pair.first)].isSelected = false
+        cards[cards.indexOf(pair.second)].isSelected = false
+        this.cards.postValue(Resource.success(cards))
+    }
+
+    private fun initGame() {
+        val searchPhotosSource = photosRepository.searchPhotos("kittens")
+        cards.addSource(searchPhotosSource){ photos ->
             when(photos?.status) {
                 Status.ERROR -> cards.value = Resource.error("")
                 Status.LOADING -> cards.value = Resource.loading()
                 Status.SUCCESS -> {
-                    val newCards = mutableListOf<SelectableCard>()
-
-                    for (i in 0 until difficulty.pairsCount) {
-                        newCards.add(SelectableCard(id = i, photoUrl = photos.data?.get(i).getDownloadUrl()))
-                    }
-                    newCards.addAll(newCards)
-                    newCards.shuffle()
-
-                    onCardsCreated(newCards)
-                    cards.removeSource(searchSource)
+                    cards.removeSource(searchPhotosSource)
+                    downloadPhotos(photos.data)
+                    initCards(photos.data)
                 }
             }
         }
     }
 
-    private fun onCardsCreated(cards: List<SelectableCard>) {
+    private fun downloadPhotos(photos: List<PhotoSearchResponse.PhotoObject>?) {
+        photos?.forEach { photo ->
+            GlideApp.with(App.instance)
+                    .load(photo.getDownloadUrl())
+                    .downloadOnly(500, 500)
+        }
+    }
+
+    private fun initCards(photos: List<PhotoSearchResponse.PhotoObject>?) {
+        val cards = mutableListOf<SelectableCard>()
+
+        for (i in 0 until difficulty.pairsCount) {
+            val photo = photos?.get(i)
+            val cardA = SelectableCard(i, photo.getDownloadUrl())
+            val cardB = SelectableCard(i, photo.getDownloadUrl())
+            cards.add(cardA)
+            cards.add(cardB)
+        }
+        cards.shuffle()
+        startGame(cards)
+    }
+
+    private fun startGame(cards: List<SelectableCard>) {
         this.cards.value = Resource.success(cards)
         initCountDownTimer()
     }
-
-    public fun onCardSelected(card: SelectableCard, position: Int) {
-
-    }
-
-
 
     private fun initCountDownTimer() {
         countDownTimer = object : CountDownTimer(MAX_TIME_MILLIS, 1000) {
@@ -79,11 +128,4 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
     companion object {
         const val MAX_TIME_MILLIS = 1L * 60 * 60 * 1000
     }
-}
-
-fun Long?.toFormattedTime(): String {
-    if (this == null) return "00:00"
-    val minutes = (this / 60)
-    val seconds = (this % 60)
-    return "$minutes:$seconds"
 }

@@ -5,7 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.nightlydev.memory.GlideApp
 import com.nightlydev.memory.R
 import com.nightlydev.memory.model.SelectableCard
 
@@ -27,9 +28,22 @@ class CardsAdapter : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
         val card = items[position]
         holder.itemView.setOnClickListener { onItemClickListener?.invoke(it, position) }
-        holder.resetViews()
         holder.bindCard(card)
     }
+
+    /*
+     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
+        val card = items[position]
+        holder.itemView.setOnClickListener {
+            val context = holder.itemView.context
+            val front = holder.itemView.findViewById<View>(R.id.card_front)
+            val back = holder.itemView.findViewById<View>(R.id.card_back)
+            FlipAnimator.flipView(context, back, front,card.isSelected) { onItemClickListener?.invoke(it, position) }
+        }
+
+        holder.bindCard(card)
+    }
+    */
 
     fun setItems(items: List<SelectableCard>?) {
         if (items == null) {
@@ -47,6 +61,7 @@ class CardsAdapter : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
 
     fun getItem(position: Int): SelectableCard? {
         if (position < 0 || position >= items.size) return null
+
         return items[position]
     }
 
@@ -54,16 +69,17 @@ class CardsAdapter : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
         private val background: ImageView = itemView.findViewById(R.id.iv_background)
 
         fun bindCard(card: SelectableCard) {
+            background.clipToOutline = true
             if (card.isSelected) {
-                Glide.with(itemView).load(card.photoUrl).into(background)
+                GlideApp.with(itemView.context)
+                        .load(card.photoUrl)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .centerCrop()
+                        .into(background)
             } else {
                 background.setImageResource(R.drawable.ic_card_back)
             }
 
-        }
-
-        fun resetViews() {
-            background.setImageResource(R.drawable.ic_card_back)
         }
     }
 }

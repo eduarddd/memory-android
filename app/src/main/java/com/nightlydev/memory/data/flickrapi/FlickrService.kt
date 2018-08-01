@@ -14,7 +14,8 @@ interface FlickrService {
     @GET("services/rest")
     fun searchPhotos(@Query("text") searchQuery: String,
                      @Query("method") method: String = "flickr.photos.search",
-                     @Query("api_key") apiKey: String = "0646d49711fd65f9157fd4ab856f39c2",
+                     @Query("api_key") apiKey: String,
                      @Query("privacy_filter") privacyFilter: Int = 1,
-                     @Query("format") format: String = "json"): Observable<PhotoSearchResponse>
+                     @Query("format") format: String = "json",
+                     @Query("nojsoncallback") noJsonCallback: Int = 1): Observable<PhotoSearchResponse>
 }

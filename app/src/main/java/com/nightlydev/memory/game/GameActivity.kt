@@ -6,11 +6,16 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.view.MenuItem
 import com.nightlydev.memory.R
 import com.nightlydev.memory.data.Status
+import com.nightlydev.memory.extensions.setVisible
+import com.nightlydev.memory.extensions.showToast
+import com.nightlydev.memory.extensions.toFormattedTime
+import com.nightlydev.memory.model.Difficulty
 import com.nightlydev.memory.model.SelectableCard
 import com.nightlydev.memory.ui.CardItemDecoration
 import kotlinx.android.synthetic.main.activity_game.*
@@ -20,9 +25,7 @@ import kotlin.math.sqrt
  * Created by edu
  *
  * todo: add "flip" animation when clicking on a card
- * todo: add difficulty levels
- * todo: display time
- * todo: display flips(total pairs selected)
+ * todo: save state of game
  */
 class GameActivity : AppCompatActivity() {
 
@@ -48,21 +51,27 @@ class GameActivity : AppCompatActivity() {
 
         viewModel.cards.observe(this, Observer {
             when(it?.status) {
-                Status.SUCCESS -> cardsAdapter.setItems(it.data)
-                Status.ERROR -> {} //TODO: Handle error
-                Status.LOADING -> {} //TODO: Display Progress bar
+                Status.SUCCESS -> {
+                    progress_bar.setVisible(false)
+                    cardsAdapter.setItems(it.data)
+                }
+                Status.ERROR -> {
+                    progress_bar.setVisible(false)
+                    showToast("There was an error loading the game")
+                    finish()
+                }
+                Status.LOADING -> progress_bar.setVisible(true)
             }
         })
         viewModel.timeInSeconds.observe(this, Observer { displayTime(it) })
+        viewModel.pairFlipCount.observe(this, Observer { displayFlipCount(it) })
     }
 
     private fun initRecyclerView() {
-        cardsAdapter.onItemClickListener = { _, pos ->
-            onCardSelected(cardsAdapter.getItem(pos), pos)
-        }
+        cardsAdapter.onItemClickListener = { _, pos -> onCardSelected(cardsAdapter.getItem(pos)) }
 
         rv_cards.apply {
-            //todo: calculate columns(spanCount) depending on level etc...
+            setHasFixedSize(true)
             val columns = sqrt(viewModel.difficulty.pairsCount * 2.0)
             layoutManager = GridLayoutManager(this@GameActivity, columns.toInt())
             adapter = cardsAdapter
@@ -74,23 +83,36 @@ class GameActivity : AppCompatActivity() {
         tv_time_count.text = timeInSeconds.toFormattedTime()
     }
 
-    private fun onCardSelected(card: SelectableCard?, position: Int) {
+    private fun displayFlipCount(flipCount: Int?) {
+        tv_flip_count.text = flipCount.toString()
+    }
+
+    private fun onCardSelected(card: SelectableCard?) {
         if (card == null) return
-        card.isSelected = !card.isSelected
-        cardsAdapter.setItem(card, position)
+        //cardsAdapter.setItem(card, position)
+        viewModel.onCardSelected(card)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return false
+        return if (item.itemId == android.R.id.home) {
+            showStopGameConfirmation()
+            false
+        } else {
+            super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putSerializable(STATE_DIFFICULTY, viewModel.difficulty)
+    }
+
+    private fun showStopGameConfirmation() {
+        AlertDialog.Builder(this)
+                .setMessage(R.string.alert_confirm_finish_game)
+                .setPositiveButton(android.R.string.yes) { _,_ -> finish() }
+                .setNegativeButton(android.R.string.no, null)
+                .show()
     }
 
     companion object {
