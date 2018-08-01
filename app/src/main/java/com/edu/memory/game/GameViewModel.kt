@@ -28,9 +28,8 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
     val pairFlipCount: MutableLiveData<Int> = MutableLiveData()
     val score: MutableLiveData<Score> = MutableLiveData()
 
-
     private val flippedCards: MutableList<Card> = mutableListOf()
-    private var tmpSelectedCard: Card? = null
+    private var currentSelectedCard: Card? = null
 
     private val photosRepository = PhotosRepository()
     private val scoreRepository = ScoresRepository()
@@ -41,23 +40,35 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
         pairFlipCount.value = 0
     }
 
+    /**
+     * Called when a card is selected from the game. Depending if there is already another card
+     * selected or not, it will trigger [onPairSelected]
+     */
     fun onCardSelected(card: Card): LiveData<Pair<Card, Card>> {
         val result = MutableLiveData<Pair<Card, Card>>()
 
-        if (tmpSelectedCard == null) {
-            tmpSelectedCard = card
+        if (currentSelectedCard == null) {
+            currentSelectedCard = card
         } else {
-            if (card != tmpSelectedCard) {
-                return onPairSelected(Pair(tmpSelectedCard!!, card))
+            if (card != currentSelectedCard) {
+                return onPairSelected(Pair(currentSelectedCard!!, card))
             }
         }
         return result
     }
 
-    fun isCardSelected(card: Card): Boolean {
-        return card == tmpSelectedCard || flippedCards.contains(card)
+    /**
+     * @return true if the given card is selected, or has been already flipped
+     */
+    fun isCardFlipped(card: Card): Boolean {
+        return card == currentSelectedCard || flippedCards.contains(card)
     }
 
+    /**
+     * Called when a pair of cards has been selected. It will check it both are from the same pair,
+     * and if so, store them in a list. Otherwise it will trigger them to be flipped back again.
+     * If all the cards have been flipped already, it will call [onGameFinished]
+     */
     private fun onPairSelected(pair: Pair<Card, Card>): LiveData<Pair<Card, Card>> {
         val result = MutableLiveData<Pair<Card, Card>>()
         pairFlipCount.value = pairFlipCount.value?.plus(1)
@@ -72,7 +83,7 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
         if (cards.value?.data?.size == flippedCards.size) {
             onGameFinished()
         }
-        tmpSelectedCard = null
+        currentSelectedCard = null
         return result
     }
 
@@ -86,6 +97,9 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
         this.score.value = score
     }
 
+    /**
+     * Initializes the game, downloading a list of photos for the cards and initializing them.
+     */
     private fun initGame() {
         val searchPhotosSource = photosRepository.searchPhotos("kittens")
         cards.addSource(searchPhotosSource){ photos ->
@@ -106,8 +120,8 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
 
         for (i in 0 until difficulty.pairsCount) {
             val photo = photos?.get(i)
-            val cardA = Card(i, photo.getDownloadUrl())
-            val cardB = Card(i, photo.getDownloadUrl())
+            val cardA = Card(pairNumber = i, photoUrl = photo.getDownloadUrl())
+            val cardB = Card(pairNumber = i, photoUrl = photo.getDownloadUrl())
             cards.add(cardA)
             cards.add(cardB)
         }

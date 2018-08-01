@@ -5,8 +5,7 @@ import android.arch.persistence.room.Room
 import com.edu.memory.data.db.GameDatabase
 
 /**
- * @author edu (edusevilla90@gmail.com)
- * @since 31-7-18
+ * Created by edu
  */
 class App : Application() {
 

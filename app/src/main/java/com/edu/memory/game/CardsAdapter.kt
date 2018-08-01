@@ -8,7 +8,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.edu.memory.GlideApp
 import com.edu.memory.R
 import com.edu.memory.extensions.determineCardItemWidth
-import com.edu.memory.extensions.determinegetCardItemHeight
+import com.edu.memory.extensions.determineCardItemHeight
 import com.edu.memory.extensions.inflateView
 import com.edu.memory.model.Card
 
@@ -18,11 +18,11 @@ import com.edu.memory.model.Card
 class CardsAdapter : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
 
     private var items : MutableList<Card> = mutableListOf()
-    var onItemClickListener: ((View, Int) -> Unit)? = null
+    var onItemClickListener: ((Int) -> Unit)? = null
 
     override fun onCreateViewHolder(container: ViewGroup, p1: Int): CardViewHolder {
         val itemWidth = determineCardItemWidth(container, items.size)
-        val itemHeight = determinegetCardItemHeight(container, items.size)
+        val itemHeight = determineCardItemHeight(container, items.size)
 
         return CardViewHolder(inflateView(container, R.layout.item)).apply {
             itemView.layoutParams.width = itemWidth
@@ -35,7 +35,7 @@ class CardsAdapter : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
         val card = items[position]
 
-        holder.itemView.setOnClickListener { onItemClickListener?.invoke(it, position) }
+        holder.itemView.setOnClickListener { onItemClickListener?.invoke(position) }
         holder.bindCard(card)
     }
 
@@ -46,11 +46,6 @@ class CardsAdapter : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
             this.items = items.toMutableList()
         }
         notifyDataSetChanged()
-    }
-
-    fun setItem(item: Card, position: Int) {
-        items[position] = item
-        notifyItemChanged(position)
     }
 
     fun getItem(position: Int): Card? {

@@ -14,8 +14,7 @@ import com.edu.memory.model.Score
 import kotlinx.android.synthetic.main.fragment_high_scores.*
 
 /**
- * @author edu (edusevilla90@gmail.com)
- * @since 1-8-18
+ * Created by edu
  */
 class HighScoresFragment : Fragment() {
 

@@ -5,8 +5,9 @@ import android.arch.persistence.room.PrimaryKey
 import io.reactivex.annotations.NonNull
 
 /**
- * @author edu (edusevilla90@gmail.com)
- * @since 1-8-18
+ * Created by edu
+ *
+ * Data class holding the Scores of the game
  */
 @Entity
 data class Score(

@@ -2,5 +2,7 @@ package com.edu.memory.model
 
 /**
  * Created by edu
+ *
+ * Data class representing a card.
  */
-open class Card(val pairNumber: Int, val photoUrl: String = "")
+data class Card(val pairNumber: Int, val photoUrl: String = "")

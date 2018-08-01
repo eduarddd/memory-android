@@ -6,14 +6,12 @@ import android.content.Context
 import android.view.View
 import com.edu.memory.R
 
-
 /**
- * @author edu (edusevilla90@gmail.com)
- * @since 1-8-18
+ * Created by edu
  */
 object FlipAnimator {
 
-    fun flip(context: Context, back: View?, front: View?, showFront: Boolean) {
+    fun flipView(context: Context, back: View?, front: View?, showFront: Boolean) {
         if (back == null || front == null) return
 
         val mSetRightOut = AnimatorInflater.loadAnimator(context, R.animator.out_animation) as AnimatorSet

@@ -9,8 +9,7 @@ import android.arch.persistence.room.Query
 import com.edu.memory.model.Score
 
 /**
- * @author edu (edusevilla90@gmail.com)
- * @since 1-8-18
+ * Created by edu
  */
 @Dao
 interface ScoreDao {

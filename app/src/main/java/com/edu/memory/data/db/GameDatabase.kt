@@ -8,8 +8,7 @@ import com.edu.memory.model.Difficulty
 import com.edu.memory.model.Score
 
 /**
- * @author edu (edusevilla90@gmail.com)
- * @since 1-8-18
+ * Created by edu
  */
 @Database(entities = [Score::class], version = 1)
 @TypeConverters(Converters::class)

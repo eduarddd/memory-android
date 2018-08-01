@@ -42,6 +42,9 @@ class GameActivity : AppCompatActivity() {
         initRecyclerView()
     }
 
+    /**
+     * Initializes the ViewModel and observe its LiveData objects to display the game.
+     */
     @SuppressLint("SetTextI18n")
     private fun initViewModel(savedInstanceState: Bundle?) {
         val difficulty = savedInstanceState?.getSerializable(STATE_DIFFICULTY) as? Difficulty
@@ -71,7 +74,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun initRecyclerView() {
-        cardsAdapter.onItemClickListener = { view, position -> onCardSelected(position) }
+        cardsAdapter.onItemClickListener = { position -> onCardSelected(position) }
 
         rv_cards.apply {
             setHasFixedSize(true)
@@ -93,7 +96,7 @@ class GameActivity : AppCompatActivity() {
     private fun onCardSelected(position: Int) {
         val card = cardsAdapter.getItem(position) ?: return
 
-        if (!viewModel.isCardSelected(card)) {
+        if (!viewModel.isCardFlipped(card)) {
             flipCard(card, true)
         }
         viewModel.onCardSelected(card).observe(this, Observer { pair ->
@@ -109,7 +112,7 @@ class GameActivity : AppCompatActivity() {
 
         val front = cardView?.findViewById<View>(R.id.card_front)
         val back = cardView?.findViewById<View>(R.id.card_back)
-        FlipAnimator.flip(this, front, back, showFront)
+        FlipAnimator.flipView(this, front, back, showFront)
     }
 
     private fun onGameFinished(score: Score) {

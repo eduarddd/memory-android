@@ -18,19 +18,14 @@ import io.reactivex.schedulers.Schedulers
 import kotlin.math.sqrt
 
 /**
- * @author edu (edusevilla90@gmail.com)
- * @since 31-7-18
+ * Created by edu
  */
 fun <T> Observable<T>.apiSubscribe(observer: Observer<in T>) {
     observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe(observer)
 }
 
 fun View?.setVisible(visible: Boolean) {
-    this?.visibility = if (visible) {
-        VISIBLE
-    } else {
-        GONE
-    }
+    this?.visibility = if (visible) VISIBLE else GONE
 }
 
 fun Long?.toFormattedTime(): String {
@@ -58,7 +53,7 @@ fun determineCardItemWidth(container: View, itemCount: Int): Int {
     return ((container.width - separation - (2 * spanCount * separation) ) / spanCount).toInt()
 }
 
-fun determinegetCardItemHeight(container: View, itemCount: Int): Int {
+fun determineCardItemHeight(container: View, itemCount: Int): Int {
     val spanCount = sqrt(itemCount.toDouble()).toInt()
     val separation = container.context.resources.getDimension(R.dimen.card_grid_separation)
     return ((container.height - separation - (2 * spanCount * separation) ) / spanCount).toInt()

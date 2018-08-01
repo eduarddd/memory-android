@@ -10,8 +10,7 @@ import com.edu.memory.extensions.toFormattedTime
 import com.edu.memory.model.Score
 
 /**
- * @author edu (edusevilla90@gmail.com)
- * @since 1-8-18
+ * Created by edu
  */
 class ScoresAdapter : RecyclerView.Adapter<ScoresAdapter.ScoreViewHolder>() {
     var scores: MutableList<Score> = mutableListOf()
