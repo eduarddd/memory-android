@@ -6,32 +6,36 @@
 
     <Button
         android:id="@+id/bt_play"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="play"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:text="@string/play"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.4" />
+        app:layout_constraintVertical_bias="0.4"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"/>
 
     <Button
         android:id="@+id/bt_scores"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="scores"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:text="@string/ranking"
         app:layout_constraintTop_toBottomOf="@id/bt_play"
         app:layout_constraintStart_toStartOf="@id/bt_play"
-        app:layout_constraintEnd_toEndOf="@id/bt_play"/>
+        app:layout_constraintEnd_toEndOf="@id/bt_play"
+        android:layout_marginTop="16dp"/>
 
     <Button
         android:id="@+id/bt_options"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="options"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:text="@string/options"
         app:layout_constraintTop_toBottomOf="@id/bt_scores"
         app:layout_constraintStart_toStartOf="@id/bt_scores"
-        app:layout_constraintEnd_toEndOf="@id/bt_scores"/>
+        app:layout_constraintEnd_toEndOf="@id/bt_scores"
+        android:layout_marginTop="16dp"/>
 
 
 

@@ -1,8 +1,23 @@
 <resources>
     <string name="app_name">Memory</string>
 
+    <string name="play">Play</string>
+    <string name="ranking">Ranking</string>
+    <string name="options">Options</string>
+
+    <string name="new_game">New game</string>
+    <string name="button_difficulty_easy">EASY (4x4)</string>
+    <string name="button_difficulty_medium">MEDIUM (6x6)</string>
+    <string name="button_difficulty_hard">HARD (8x8)</string>
+
     <string name="label_time_count">Time: </string>
     <string name="label_flip_count">Flips: </string>
 
+    <string name="time">Time</string>
+    <string name="flips">Flips</string>
+
     <string name="alert_confirm_finish_game">Are you sure you want to leave the game?</string>
+    <string name="dialog_title_game_finished">You won!</string>
+    <string name="dialog_message_game_finished">Score:\nTime: %1$s \nFlips: %2$d</string>
+    <string name="done">Done</string>
 </resources>

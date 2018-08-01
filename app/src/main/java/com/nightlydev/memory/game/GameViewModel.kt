@@ -25,6 +25,7 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
     val cards: MediatorLiveData<Resource<List<SelectableCard>>> = MediatorLiveData()
     val timeInSeconds: MutableLiveData<Long> = MutableLiveData()
     val pairFlipCount: MutableLiveData<Int> = MutableLiveData()
+    val score: MutableLiveData<Score> = MutableLiveData()
     private val flippedCards: MutableList<SelectableCard> = mutableListOf()
     private var firstSelectedCard: SelectableCard? = null
 
@@ -42,11 +43,11 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
         cards[cards.indexOf(card)].isSelected = true
         this.cards.value = Resource.success(cards)
 
-        if (firstSelectedCard == null) {
-            firstSelectedCard = card
+        firstSelectedCard = if (firstSelectedCard == null) {
+            card
         } else {
             onPairSelected(Pair(firstSelectedCard!!, card))
-            firstSelectedCard = null
+            null
         }
     }
 
@@ -65,13 +66,13 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
     }
 
     private fun onGameFinished() {
-        //TODO: Show alert
         saveScore()
     }
 
     private fun saveScore() {
         val score = Score(difficulty, timeInSeconds.value!!, pairFlipCount.value!!)
         scoreRepository.saveScore(score)
+        this.score.value = score
     }
 
     private fun hideCards(pair: Pair<SelectableCard, SelectableCard>) {

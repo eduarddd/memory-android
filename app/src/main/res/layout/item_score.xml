@@ -24,7 +24,7 @@
         app:layout_constraintStart_toEndOf="@id/tv_ranking"
         app:layout_constraintEnd_toStartOf="@id/tv_label_flip_count"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="Time" />
+        android:text="@string/time" />
 
     <TextView
         android:id="@+id/tv_time_count"
@@ -39,11 +39,11 @@
         android:id="@+id/tv_label_flip_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        app:layout_constraintBaseline_toBaselineOf="@id/tv_label_time_count"
         app:layout_constraintStart_toEndOf="@id/tv_label_time_count"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="Flips" />
+        android:text="@string/flips" />
 
     <TextView
         android:id="@+id/tv_flip_count"

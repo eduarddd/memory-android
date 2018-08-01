@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="card_grid_separation">2dp</dimen>
+
+    <string name="default_margin">16dp</string>
+    <string name="double_margin">32dp</string>
 </resources>

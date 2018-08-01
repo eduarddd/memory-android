@@ -16,6 +16,7 @@ import com.nightlydev.memory.extensions.setVisible
 import com.nightlydev.memory.extensions.showToast
 import com.nightlydev.memory.extensions.toFormattedTime
 import com.nightlydev.memory.model.Difficulty
+import com.nightlydev.memory.model.Score
 import com.nightlydev.memory.model.SelectableCard
 import com.nightlydev.memory.ui.CardItemDecoration
 import kotlinx.android.synthetic.main.activity_game.*
@@ -25,6 +26,7 @@ import kotlin.math.sqrt
  * Created by edu
  *
  * todo: add "flip" animation when clicking on a card
+ * todo: calculate size of cards depending on card count and screen size
  * todo: save state of game
  */
 class GameActivity : AppCompatActivity() {
@@ -65,6 +67,7 @@ class GameActivity : AppCompatActivity() {
         })
         viewModel.timeInSeconds.observe(this, Observer { displayTime(it) })
         viewModel.pairFlipCount.observe(this, Observer { displayFlipCount(it) })
+        viewModel.score.observe(this, Observer { if (it != null) onGameFinished(it) })
     }
 
     private fun initRecyclerView() {
@@ -91,6 +94,15 @@ class GameActivity : AppCompatActivity() {
         if (card == null) return
         //cardsAdapter.setItem(card, position)
         viewModel.onCardSelected(card)
+    }
+
+    private fun onGameFinished(score: Score) {
+        val message = getString(R.string.dialog_message_game_finished, score.timeInSeconds.toFormattedTime(), score.flipsCount)
+        AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_title_game_finished)
+                .setMessage(message)
+                .setPositiveButton(R.string.done) { _, _ -> finish() }
+                .show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
