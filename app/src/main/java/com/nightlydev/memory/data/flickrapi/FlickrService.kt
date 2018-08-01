@@ -3,6 +3,7 @@ package com.nightlydev.memory.data.flickrapi
 import io.reactivex.Observable
 import retrofit2.http.GET
 import retrofit2.http.Query
+import java.util.*
 
 /**
  * Created by Edu
@@ -16,6 +17,7 @@ interface FlickrService {
                      @Query("method") method: String = "flickr.photos.search",
                      @Query("api_key") apiKey: String,
                      @Query("privacy_filter") privacyFilter: Int = 1,
+                     @Query("page") page: Int = Random().nextInt(100),
                      @Query("format") format: String = "json",
                      @Query("nojsoncallback") noJsonCallback: Int = 1): Observable<PhotoSearchResponse>
 }

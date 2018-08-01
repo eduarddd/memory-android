@@ -7,6 +7,10 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import com.nightlydev.memory.App
+import com.nightlydev.memory.GlideApp
+import com.nightlydev.memory.data.flickrapi.PhotoSearchResponse
+import com.nightlydev.memory.data.flickrapi.getDownloadUrl
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -41,4 +45,12 @@ fun Long?.toFormattedTime(): String {
 
 fun inflateView(container: ViewGroup, @LayoutRes layoutId: Int): View {
     return LayoutInflater.from(container.context).inflate(layoutId, container, false)
+}
+
+fun downloadPhotos(photos: List<PhotoSearchResponse.PhotoObject>?) {
+    photos?.forEach { photo ->
+        GlideApp.with(App.instance)
+                .load(photo.getDownloadUrl())
+                .downloadOnly(500, 500)
+    }
 }

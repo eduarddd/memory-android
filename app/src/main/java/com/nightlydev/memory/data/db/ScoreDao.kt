@@ -15,7 +15,7 @@ import com.nightlydev.memory.model.Score
 @Dao
 interface ScoreDao {
 
-    @Query("SELECT * FROM score WHERE difficulty = :difficulty ORDER BY timeInSeconds DESC")
+    @Query("SELECT * FROM score WHERE difficulty = :difficulty ORDER BY timeInSeconds ASC")
     fun getScores(difficulty: String): LiveData<List<Score>>
 
     @Insert(onConflict = REPLACE)

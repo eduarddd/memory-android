@@ -38,7 +38,7 @@ class ScoresAdapter : RecyclerView.Adapter<ScoresAdapter.ScoreViewHolder>() {
         private val flips: TextView = itemView.findViewById(R.id.tv_flip_count)
 
         fun bindScore(score: Score) {
-            ranking.text = adapterPosition.toString()
+            ranking.text = (adapterPosition + 1).toString()
             time.text = score.timeInSeconds.toFormattedTime()
             flips.text = score.flipsCount.toString()
         }

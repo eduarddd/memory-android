@@ -4,14 +4,13 @@ import android.arch.lifecycle.MediatorLiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.os.CountDownTimer
-import com.nightlydev.memory.App
-import com.nightlydev.memory.GlideApp
 import com.nightlydev.memory.data.PhotosRepository
 import com.nightlydev.memory.data.Resource
 import com.nightlydev.memory.data.ScoresRepository
 import com.nightlydev.memory.data.Status
 import com.nightlydev.memory.data.flickrapi.PhotoSearchResponse
 import com.nightlydev.memory.data.flickrapi.getDownloadUrl
+import com.nightlydev.memory.extensions.downloadPhotos
 import com.nightlydev.memory.model.Difficulty
 import com.nightlydev.memory.model.Score
 import com.nightlydev.memory.model.SelectableCard
@@ -58,7 +57,7 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
             flippedCards.add(pair.first)
             flippedCards.add(pair.second)
         } else {
-            Timer().schedule(500) { hideCards(pair) }
+            Timer().schedule(HIDE_CARDS_DELAY) { hideCards(pair) }
         }
         if (cards.value?.data?.size == flippedCards.size) {
             onGameFinished()
@@ -94,14 +93,6 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
                     initCards(photos.data)
                 }
             }
-        }
-    }
-
-    private fun downloadPhotos(photos: List<PhotoSearchResponse.PhotoObject>?) {
-        photos?.forEach { photo ->
-            GlideApp.with(App.instance)
-                    .load(photo.getDownloadUrl())
-                    .downloadOnly(500, 500)
         }
     }
 
@@ -143,5 +134,6 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
 
     companion object {
         const val MAX_TIME_MILLIS = 1L * 60 * 60 * 1000
+        const val HIDE_CARDS_DELAY = 800L
     }
 }

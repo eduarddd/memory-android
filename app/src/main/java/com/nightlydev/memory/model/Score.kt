@@ -2,6 +2,7 @@ package com.nightlydev.memory.model
 
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
+import io.reactivex.annotations.NonNull
 
 /**
  * @author edu (edusevilla90@gmail.com)
@@ -13,5 +14,7 @@ data class Score(
         var timeInSeconds: Long,
         var flipsCount: Int) {
 
-    @PrimaryKey var id: String = ""
+    @PrimaryKey
+    @NonNull
+    var id: Int = hashCode()
 }

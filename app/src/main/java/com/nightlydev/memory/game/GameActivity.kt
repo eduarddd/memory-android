@@ -102,6 +102,10 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        showStopGameConfirmation()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putSerializable(STATE_DIFFICULTY, viewModel.difficulty)
