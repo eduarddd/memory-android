@@ -25,7 +25,8 @@
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".game.DifficultySelectionActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
-
+        <activity android:name=".scores.HighScoresActivity"
+            android:windowSoftInputMode="stateAlwaysHidden" />
 
     </application>
 </manifest>

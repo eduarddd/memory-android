@@ -8,6 +8,7 @@ import android.widget.ImageView
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.nightlydev.memory.GlideApp
 import com.nightlydev.memory.R
+import com.nightlydev.memory.extensions.inflateView
 import com.nightlydev.memory.model.SelectableCard
 
 /**
@@ -19,8 +20,7 @@ class CardsAdapter : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
     var onItemClickListener: ((View, Int) -> Unit)? = null
 
     override fun onCreateViewHolder(container: ViewGroup, p1: Int): CardViewHolder {
-        val itemView = LayoutInflater.from(container.context).inflate(R.layout.item_card, container, false)
-        return CardViewHolder(itemView)
+        return CardViewHolder(inflateView(container, R.layout.item_card))
     }
 
     override fun getItemCount(): Int = items.size

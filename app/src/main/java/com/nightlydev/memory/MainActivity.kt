@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.nightlydev.memory.extensions.showToast
 import com.nightlydev.memory.game.DifficultySelectionActivity
-import com.nightlydev.memory.game.GameActivity
+import com.nightlydev.memory.scores.HighScoresActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 /**
@@ -21,11 +21,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun initButtons() {
         bt_play.setOnClickListener { startDifficultySelectionActivity() }
-        bt_scores.setOnClickListener { showToast("High scores!") }
+        bt_scores.setOnClickListener { startHighScoresActivity() }
         bt_options.setOnClickListener { showToast("Options") }
     }
 
     private fun startDifficultySelectionActivity() {
         startActivity(Intent(this, DifficultySelectionActivity::class.java))
+    }
+
+    private fun startHighScoresActivity() {
+        startActivity(Intent(this, HighScoresActivity::class.java))
     }
 }

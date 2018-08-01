@@ -8,6 +8,3 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by Edu
  */
-fun <T> Observable<T>.apiSubscribe(observer: Observer<in T>) {
-    observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe(observer)
-}

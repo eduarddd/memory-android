@@ -8,10 +8,12 @@ import com.nightlydev.memory.App
 import com.nightlydev.memory.GlideApp
 import com.nightlydev.memory.data.PhotosRepository
 import com.nightlydev.memory.data.Resource
+import com.nightlydev.memory.data.ScoresRepository
 import com.nightlydev.memory.data.Status
 import com.nightlydev.memory.data.flickrapi.PhotoSearchResponse
 import com.nightlydev.memory.data.flickrapi.getDownloadUrl
 import com.nightlydev.memory.model.Difficulty
+import com.nightlydev.memory.model.Score
 import com.nightlydev.memory.model.SelectableCard
 import java.util.*
 import kotlin.concurrent.schedule
@@ -28,6 +30,7 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
     private var firstSelectedCard: SelectableCard? = null
 
     private val photosRepository = PhotosRepository()
+    private val scoreRepository = ScoresRepository()
     private lateinit var countDownTimer: CountDownTimer
 
     init {
@@ -57,6 +60,19 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
         } else {
             Timer().schedule(500) { hideCards(pair) }
         }
+        if (cards.value?.data?.size == flippedCards.size) {
+            onGameFinished()
+        }
+    }
+
+    private fun onGameFinished() {
+        //TODO: Show alert
+        saveScore()
+    }
+
+    private fun saveScore() {
+        val score = Score(difficulty, timeInSeconds.value!!, pairFlipCount.value!!)
+        scoreRepository.saveScore(score)
     }
 
     private fun hideCards(pair: Pair<SelectableCard, SelectableCard>) {
