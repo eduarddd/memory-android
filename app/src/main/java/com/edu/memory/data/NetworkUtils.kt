@@ -1,7 +1,5 @@
 package com.edu.memory.data
 
-import android.support.annotation.StringRes
-
 /**
  * Created by Edu
  */

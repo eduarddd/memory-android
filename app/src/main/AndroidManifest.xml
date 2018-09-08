@@ -21,11 +21,14 @@
 
         </activity>
 
-        <activity android:name=".game.GameActivity"
+        <activity
+            android:name="com.edu.memory.ui.game.GameActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity android:name=".game.DifficultySelectionActivity"
+        <activity
+            android:name="com.edu.memory.ui.game.DifficultySelectionActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity android:name=".scores.HighScoresActivity"
+        <activity
+            android:name="com.edu.memory.ui.scores.HighScoresActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
     </application>

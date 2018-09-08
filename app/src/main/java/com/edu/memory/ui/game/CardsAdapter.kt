@@ -1,4 +1,4 @@
-package com.edu.memory.game
+package com.edu.memory.ui.game
 
 import android.support.v7.widget.RecyclerView
 import android.view.View
@@ -7,8 +7,8 @@ import android.widget.ImageView
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.edu.memory.GlideApp
 import com.edu.memory.R
-import com.edu.memory.extensions.determineCardItemWidth
 import com.edu.memory.extensions.determineCardItemHeight
+import com.edu.memory.extensions.determineCardItemWidth
 import com.edu.memory.extensions.inflateView
 import com.edu.memory.model.Card
 
@@ -17,7 +17,7 @@ import com.edu.memory.model.Card
  */
 class CardsAdapter : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
 
-    private var items : MutableList<Card> = mutableListOf()
+    private var items: MutableList<Card> = mutableListOf()
     var onItemClickListener: ((Int) -> Unit)? = null
 
     override fun onCreateViewHolder(container: ViewGroup, p1: Int): CardViewHolder {

@@ -1,4 +1,4 @@
-package com.edu.memory.game
+package com.edu.memory.ui.game
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -10,7 +10,7 @@ import com.edu.memory.model.Difficulty.MEDIUM
 import kotlinx.android.synthetic.main.activity_difficulty_selection.*
 
 
-class DifficultySelectionActivity: AppCompatActivity() {
+class DifficultySelectionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

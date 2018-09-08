@@ -1,4 +1,4 @@
-package com.edu.memory.scores
+package com.edu.memory.ui.scores
 
 import android.support.v7.widget.RecyclerView
 import android.view.View
@@ -31,7 +31,7 @@ class ScoresAdapter : RecyclerView.Adapter<ScoresAdapter.ScoreViewHolder>() {
         holder.bindScore(score)
     }
 
-    inner class ScoreViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    inner class ScoreViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val ranking: TextView = itemView.findViewById(R.id.tv_ranking)
         private val time: TextView = itemView.findViewById(R.id.tv_time_count)
         private val flips: TextView = itemView.findViewById(R.id.tv_flip_count)

@@ -1,4 +1,4 @@
-package com.edu.memory.data.db
+package com.edu.memory.data.local
 
 import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Dao

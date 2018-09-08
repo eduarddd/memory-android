@@ -1,4 +1,4 @@
-package com.edu.memory.game
+package com.edu.memory.ui.game
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MediatorLiveData
@@ -12,16 +12,20 @@ import com.edu.memory.data.Status
 import com.edu.memory.data.flickrapi.PhotoSearchResponse
 import com.edu.memory.data.flickrapi.getDownloadUrl
 import com.edu.memory.extensions.downloadPhotos
+import com.edu.memory.model.Card
 import com.edu.memory.model.Difficulty
 import com.edu.memory.model.Score
-import com.edu.memory.model.Card
 import java.util.*
+import javax.inject.Inject
 import kotlin.concurrent.schedule
 
 /**
  * Created by edu
  */
-class GameViewModel(val difficulty: Difficulty) : ViewModel() {
+class GameViewModel
+@Inject constructor(val difficulty: Difficulty,
+                    val photosRepository: PhotosRepository,
+                    val scoresRepository: ScoresRepository) : ViewModel() {
 
     val cards: MediatorLiveData<Resource<List<Card>>> = MediatorLiveData()
     val timeInSeconds: MutableLiveData<Long> = MutableLiveData()
@@ -31,8 +35,6 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
     private val flippedCards: MutableList<Card> = mutableListOf()
     private var currentSelectedCard: Card? = null
 
-    private val photosRepository = PhotosRepository()
-    private val scoreRepository = ScoresRepository()
     private lateinit var timer: CountDownTimer
 
     init {
@@ -93,7 +95,7 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
 
     private fun saveScore() {
         val score = Score(difficulty, timeInSeconds.value!!, pairFlipCount.value!!)
-        scoreRepository.saveScore(score)
+        scoresRepository.saveScore(score)
         this.score.value = score
     }
 
@@ -102,8 +104,8 @@ class GameViewModel(val difficulty: Difficulty) : ViewModel() {
      */
     private fun initGame() {
         val searchPhotosSource = photosRepository.searchPhotos("kittens")
-        cards.addSource(searchPhotosSource){ photos ->
-            when(photos?.status) {
+        cards.addSource(searchPhotosSource) { photos ->
+            when (photos?.status) {
                 Status.ERROR -> cards.value = Resource.error("")
                 Status.LOADING -> cards.value = Resource.loading()
                 Status.SUCCESS -> {

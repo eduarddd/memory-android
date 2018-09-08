@@ -1,8 +1,7 @@
-package com.edu.memory.scores
+package com.edu.memory.ui.scores
 
 import android.arch.lifecycle.Observer
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -11,15 +10,18 @@ import com.edu.memory.R
 import com.edu.memory.data.ScoresRepository
 import com.edu.memory.model.Difficulty
 import com.edu.memory.model.Score
+import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_high_scores.*
+import javax.inject.Inject
 
 /**
  * Created by edu
  */
-class HighScoresFragment : Fragment() {
+class HighScoresFragment : DaggerFragment() {
 
-    private val scoresAdapter= ScoresAdapter()
-    private val scoresRepository = ScoresRepository()
+    @Inject
+    lateinit var scoresRepository: ScoresRepository
+    private val scoresAdapter = ScoresAdapter()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_high_scores, container, false)

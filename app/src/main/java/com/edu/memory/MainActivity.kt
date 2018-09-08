@@ -3,8 +3,8 @@ package com.edu.memory
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.edu.memory.game.DifficultySelectionActivity
-import com.edu.memory.scores.HighScoresActivity
+import com.edu.memory.ui.game.DifficultySelectionActivity
+import com.edu.memory.ui.scores.HighScoresActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 /**

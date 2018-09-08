@@ -1,4 +1,4 @@
-package com.edu.memory.data.db
+package com.edu.memory.data.local
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
@@ -23,7 +23,8 @@ class Converters {
         return Difficulty.valueOf(name)
     }
 
-    @TypeConverter fun fromDifficulty(difficulty: Difficulty): String {
+    @TypeConverter
+    fun fromDifficulty(difficulty: Difficulty): String {
         return difficulty.name
     }
 }

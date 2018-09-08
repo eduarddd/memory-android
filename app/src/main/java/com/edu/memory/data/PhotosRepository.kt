@@ -6,13 +6,13 @@ import com.edu.memory.BuildConfig
 import com.edu.memory.data.flickrapi.FlickrService
 import com.edu.memory.data.flickrapi.PhotoSearchResponse
 import com.edu.memory.extensions.apiSubscribe
+import javax.inject.Inject
 
 /**
  * Created by Edu
  */
-class PhotosRepository {
-
-    private val flickrService: FlickrService = provideFlickrService()
+class PhotosRepository
+@Inject constructor(val flickrService: FlickrService) {
 
     fun searchPhotos(searchQuery: String): LiveData<Resource<List<PhotoSearchResponse.PhotoObject>?>> {
         val result = MutableLiveData<Resource<List<PhotoSearchResponse.PhotoObject>?>>()

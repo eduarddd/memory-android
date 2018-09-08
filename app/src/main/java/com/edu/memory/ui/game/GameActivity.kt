@@ -1,13 +1,11 @@
-package com.edu.memory.game
+package com.edu.memory.ui.game
 
 import android.annotation.SuppressLint
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.view.MenuItem
 import android.view.View
@@ -16,21 +14,34 @@ import com.edu.memory.data.Status
 import com.edu.memory.extensions.setVisible
 import com.edu.memory.extensions.showToast
 import com.edu.memory.extensions.toFormattedTime
+import com.edu.memory.model.Card
 import com.edu.memory.model.Difficulty
 import com.edu.memory.model.Score
-import com.edu.memory.model.Card
 import com.edu.memory.ui.CardItemDecoration
 import com.edu.memory.ui.FlipAnimator
+import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_game.*
+import javax.inject.Inject
+import javax.inject.Qualifier
 import kotlin.math.sqrt
 
 /**
  * Created by edu
  */
-class GameActivity : AppCompatActivity() {
+class GameActivity : DaggerAppCompatActivity() {
+
+    @Qualifier
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class DifficultyLevel
+
+    @DifficultyLevel
+    fun getDifficulty(): Difficulty {
+        return intent.getSerializableExtra(EXTRA_DIFFICULTY) as Difficulty
+    }
 
     private val cardsAdapter: CardsAdapter = CardsAdapter()
-    private lateinit var viewModel: GameViewModel
+    @Inject
+    lateinit var viewModel: GameViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,15 +58,8 @@ class GameActivity : AppCompatActivity() {
      */
     @SuppressLint("SetTextI18n")
     private fun initViewModel(savedInstanceState: Bundle?) {
-        val difficulty = savedInstanceState?.getSerializable(STATE_DIFFICULTY) as? Difficulty
-                ?: intent.getSerializableExtra(EXTRA_DIFFICULTY) as Difficulty
-
-        viewModel = ViewModelProviders
-                .of(this, GameViewModelFactory(difficulty))
-                .get(GameViewModel::class.java)
-
         viewModel.cards.observe(this, Observer {
-            when(it?.status) {
+            when (it?.status) {
                 Status.SUCCESS -> {
                     progress_bar.setVisible(false)
                     cardsAdapter.setItems(it.data)
@@ -145,13 +149,13 @@ class GameActivity : AppCompatActivity() {
     private fun showStopGameConfirmation() {
         AlertDialog.Builder(this)
                 .setMessage(R.string.alert_confirm_finish_game)
-                .setPositiveButton(android.R.string.yes) { _,_ -> finish() }
+                .setPositiveButton(android.R.string.yes) { _, _ -> finish() }
                 .setNegativeButton(android.R.string.no, null)
                 .show()
     }
 
     companion object {
-        private const val EXTRA_DIFFICULTY = "EXTRA_DIFFICULTY"
+        const val EXTRA_DIFFICULTY = "EXTRA_DIFFICULTY"
         private const val STATE_DIFFICULTY = "STATE_DIFFICULTY"
 
         fun start(context: Context, difficulty: Difficulty) {
