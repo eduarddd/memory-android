@@ -11,7 +11,7 @@ import javax.inject.Inject
  * Created by edu
  */
 class GameViewModelFactory
-@Inject constructor(@GameActivity.DifficultyLevel val difficulty: Difficulty,
+@Inject constructor(val difficulty: Difficulty,
                     val photosRepository: PhotosRepository,
                     val scoresRepository: ScoresRepository) : ViewModelProvider.Factory {
 

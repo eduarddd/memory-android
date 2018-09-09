@@ -34,7 +34,7 @@ class ApiModule {
         @Singleton
         fun provideRetrofit(okHttpClient: OkHttpClient,
                             converterFactory: GsonConverterFactory,
-                            callAdapterFactory: RxJava2CallAdapterFactory) =
+                            callAdapterFactory: RxJava2CallAdapterFactory): Retrofit =
                 Retrofit.Builder()
                         .baseUrl(getFlickrUrl())
                         .addConverterFactory(converterFactory)

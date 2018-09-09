@@ -3,6 +3,9 @@ package com.edu.memory.data
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 
+/**
+ * Created by edu
+ */
 abstract class ApiObserver<T> : Observer<T> {
     override fun onComplete() {}
 

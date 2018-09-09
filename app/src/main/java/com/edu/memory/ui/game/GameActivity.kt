@@ -22,22 +22,12 @@ import com.edu.memory.ui.FlipAnimator
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_game.*
 import javax.inject.Inject
-import javax.inject.Qualifier
 import kotlin.math.sqrt
 
 /**
  * Created by edu
  */
 class GameActivity : DaggerAppCompatActivity() {
-
-    @Qualifier
-    @Retention(AnnotationRetention.RUNTIME)
-    annotation class DifficultyLevel
-
-    @DifficultyLevel
-    fun getDifficulty(): Difficulty {
-        return intent.getSerializableExtra(EXTRA_DIFFICULTY) as Difficulty
-    }
 
     private val cardsAdapter: CardsAdapter = CardsAdapter()
     @Inject
@@ -53,9 +43,6 @@ class GameActivity : DaggerAppCompatActivity() {
         initRecyclerView()
     }
 
-    /**
-     * Initializes the ViewModel and observe its LiveData objects to display the game.
-     */
     @SuppressLint("SetTextI18n")
     private fun initViewModel(savedInstanceState: Bundle?) {
         viewModel.cards.observe(this, Observer {
