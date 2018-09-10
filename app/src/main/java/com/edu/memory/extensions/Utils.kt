@@ -1,5 +1,6 @@
 package com.edu.memory.extensions
 
+import android.arch.lifecycle.MutableLiveData
 import android.support.annotation.LayoutRes
 import android.view.LayoutInflater
 import android.view.View
@@ -68,4 +69,11 @@ fun determineCardItemHeight(container: View, itemCount: Int): Int {
     val spanCount = sqrt(itemCount.toDouble()).toInt()
     val separation = container.context.resources.getDimension(R.dimen.card_grid_separation)
     return ((container.height - separation - (2 * spanCount * separation) ) / spanCount).toInt()
+}
+
+fun <T> MutableLiveData<out List<T>>.addItem(item: T) {
+    value?.toMutableList()?.let {
+        it.add(item)
+        value = it
+    }
 }

@@ -12,8 +12,8 @@ import io.reactivex.annotations.NonNull
 @Entity
 data class Score(
         var difficulty: Difficulty,
-        var timeInSeconds: Long,
-        var flipsCount: Int) {
+        var timeInSeconds: Long?,
+        var flipsCount: Int?) {
 
     @PrimaryKey
     @NonNull

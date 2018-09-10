@@ -1,6 +1,5 @@
 package com.edu.memory.ui.game
 
-import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MediatorLiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
@@ -11,6 +10,7 @@ import com.edu.memory.data.ScoresRepository
 import com.edu.memory.data.Status
 import com.edu.memory.data.flickrapi.PhotoObject
 import com.edu.memory.data.flickrapi.getDownloadUrl
+import com.edu.memory.extensions.addItem
 import com.edu.memory.model.*
 import java.util.*
 import javax.inject.Inject
@@ -20,74 +20,88 @@ import kotlin.concurrent.schedule
  * Created by edu
  */
 class GameViewModel
-@Inject constructor(difficulty: Difficulty,
+@Inject constructor(val difficulty: Difficulty,
                     val photosRepository: PhotosRepository,
                     val scoresRepository: ScoresRepository) : ViewModel() {
 
-    val game: Game
-    val flips: MutableList<Flip> = mutableListOf()
-
+    lateinit var game: Game
+    val flips: MutableLiveData<List<Pair<Card, Card>>> = MutableLiveData()
     val cards: MediatorLiveData<Resource<List<Card>>> = MediatorLiveData()
-    val timeInSeconds: MutableLiveData<Long> = MutableLiveData()
-    val pairFlipCount: MutableLiveData<Int> = MutableLiveData()
+
     val score: MutableLiveData<Score> = MutableLiveData()
 
-    private val flippedCards: MutableList<Card> = mutableListOf()
-    private var currentSelectedCard: Card? = null
+    val flippedCards: MutableLiveData<MutableList<Card>> = MutableLiveData()
+    val gameAction: ActionLiveData<GameAction> = ActionLiveData()
+    var selectedPair: Pair<Card, Card?>? = null
 
+    val timeInSeconds: MutableLiveData<Long> = MutableLiveData()
     private lateinit var timer: CountDownTimer
 
     init {
-        game = Game(startDate = Calendar.getInstance(), difficulty = difficulty)
-        pairFlipCount.value = 0
-        initGame()
-    }
-
-    /**
-     * Called when a card is selected from the game. Depending if there is already another card
-     * selected or not, it will trigger [onPairSelected]
-     */
-    fun onCardSelected(card: Card): LiveData<Pair<Card, Card>> {
-        val result = MutableLiveData<Pair<Card, Card>>()
-
-        if (currentSelectedCard == null) {
-            currentSelectedCard = card
-        } else {
-            if (card != currentSelectedCard) {
-                return onPairSelected(Pair(currentSelectedCard!!, card))
+        val searchPhotosSource = photosRepository.fetchPhotos("kittens", difficulty.pairCount)
+        cards.addSource(searchPhotosSource) { photos ->
+            when (photos?.status) {
+                Status.ERROR -> cards.value = Resource.error("")
+                Status.LOADING -> cards.value = Resource.loading()
+                Status.SUCCESS -> {
+                    cards.removeSource(searchPhotosSource)
+                    onPhotosLoaded(photos.data)
+                }
             }
         }
-        return result
     }
 
-    /**
-     * @return true if the given card is selected, or has been already flipped
-     */
-    fun isCardFlipped(card: Card): Boolean {
-        return card == currentSelectedCard || flippedCards.contains(card)
+    private fun onPhotosLoaded(photos: List<PhotoObject>?) {
+        val pairs = initCards(photos)
+        game = Game(startDate = Calendar.getInstance(), difficulty = difficulty, pairs = pairs)
+        cards.value = Resource.success(game.shuffleCards())
+        initTimer()
     }
 
-    /**
-     * Called when a pair of cards has been selected. It will check it both are from the same pair,
-     * and if so, store them in a list. Otherwise it will trigger them to be flipped back again.
-     * If all the cards have been flipped already, it will call [onGameFinished]
-     */
-    private fun onPairSelected(pair: Pair<Card, Card>): LiveData<Pair<Card, Card>> {
-        val result = MutableLiveData<Pair<Card, Card>>()
-        pairFlipCount.value = pairFlipCount.value?.plus(1)
+    private fun initCards(photos: List<PhotoObject>?): List<Pair<Card, Card>> {
+        val pairs = mutableListOf<Pair<Card, Card>>()
+        photos?.let {
+            for (i in 0 until difficulty.pairCount) {
+                val photo = it[i]
+                val cardA = Card(pairNumber = i, photoUrl = photo.getDownloadUrl())
+                val cardB = Card(pairNumber = i, photoUrl = photo.getDownloadUrl())
+                val pair = Pair(cardA, cardB)
+                pairs.add(pair)
+            }
+        }
+        return pairs
+    }
+
+    fun onCardSelected(card: Card) {
+        if (flippedCards.value?.contains(card) == true) return
+        gameAction.value = GameAction.select(card)
+        if (selectedPair == null) {
+            selectedPair = Pair(card, null)
+            return
+        } else {
+            selectedPair = Pair(selectedPair!!.first, card)
+            onPairSelected(Pair(selectedPair!!.first, card))
+        }
+    }
+
+    private fun onPairSelected(pair: Pair<Card, Card>) {
+        val flip = Flip(pair.first, pair.second)
 
         if (pair.first.pairNumber == pair.second.pairNumber) {
-            flippedCards.add(pair.first)
-            flippedCards.add(pair.second)
-            result.value = null
+            flippedCards.addItem(pair.first)
+            flippedCards.addItem(pair.second)
         } else {
-            Timer().schedule(HIDE_CARDS_DELAY) { result.postValue(pair) }
+            Timer().schedule(HIDE_CARDS_DELAY) {
+                gameAction.postValue(GameAction.deselect(pair.first))
+                gameAction.postValue(GameAction.deselect(pair.second))
+            }
         }
-        if (cards.value?.data?.size == flippedCards.size) {
+        if (cards.value?.data?.size == flippedCards.value?.size) {
             onGameFinished()
         }
-        currentSelectedCard = null
-        return result
+
+        flips.addItem(flip)
+        selectedPair = null
     }
 
     private fun onGameFinished() {
@@ -96,43 +110,9 @@ class GameViewModel
     }
 
     private fun saveScore() {
-        val score = Score(game.difficulty, timeInSeconds.value!!, pairFlipCount.value!!)
+        val score = Score(game.difficulty, timeInSeconds.value, flips.value?.size)
         scoresRepository.saveScore(score)
         this.score.value = score
-    }
-
-    /**
-     * Initializes the game, downloading a list of photos for the cards and initializing them.
-     */
-    private fun initGame() {
-        val searchPhotosSource = photosRepository.fetchPhotos("kittens", game.difficulty.pairCount)
-        cards.addSource(searchPhotosSource) { photos ->
-            when (photos?.status) {
-                Status.ERROR -> cards.value = Resource.error("")
-                Status.LOADING -> cards.value = Resource.loading()
-                Status.SUCCESS -> {
-                    cards.removeSource(searchPhotosSource)
-                    initCards(photos.data)
-                    initTimer()
-                }
-            }
-        }
-    }
-
-    private fun initCards(photos: List<PhotoObject>?) {
-        val cards = mutableListOf<Card>()
-
-        photos?.let {
-            for (i in 0 until game.difficulty.pairCount) {
-                val photo = it[i]
-                val cardA = Card(pairNumber = i, photoUrl = photo.getDownloadUrl())
-                val cardB = Card(pairNumber = i, photoUrl = photo.getDownloadUrl())
-                cards.add(cardA)
-                cards.add(cardB)
-            }
-        }
-        cards.shuffle()
-        this.cards.value = Resource.success(cards)
     }
 
     private fun initTimer() {

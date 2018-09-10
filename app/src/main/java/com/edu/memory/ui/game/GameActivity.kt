@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.GridLayoutManager
 import android.view.MenuItem
-import android.view.View
 import com.edu.memory.R
 import com.edu.memory.data.Status
 import com.edu.memory.extensions.setVisible
@@ -18,7 +17,6 @@ import com.edu.memory.model.Card
 import com.edu.memory.model.Difficulty
 import com.edu.memory.model.Score
 import com.edu.memory.ui.CardItemDecoration
-import com.edu.memory.ui.FlipAnimator
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_game.*
 import javax.inject.Inject
@@ -60,16 +58,17 @@ class GameActivity : DaggerAppCompatActivity() {
             }
         })
         viewModel.timeInSeconds.observe(this, Observer { displayTime(it) })
-        viewModel.pairFlipCount.observe(this, Observer { displayFlipCount(it) })
+        viewModel.flips.observe(this, Observer { displayFlipCount(it?.size) })
         viewModel.score.observe(this, Observer { if (it != null) onGameFinished(it) })
+        viewModel.gameAction.observe(this, Observer { executeGameAction(it) })
     }
 
     private fun initRecyclerView() {
-        cardsAdapter.onItemClickListener = { position -> onCardSelected(position) }
+        cardsAdapter.onItemClickListener = { position, card -> onCardSelected(position, card) }
 
         rv_cards.apply {
             setHasFixedSize(true)
-            val columns = sqrt(viewModel.game.difficulty.pairCount * 2.0)
+            val columns = sqrt(viewModel.difficulty.pairCount * 2.0)
             layoutManager = GridLayoutManager(this@GameActivity, columns.toInt())
             adapter = cardsAdapter
             addItemDecoration(CardItemDecoration(this@GameActivity, R.dimen.card_grid_separation))
@@ -84,27 +83,31 @@ class GameActivity : DaggerAppCompatActivity() {
         tv_flip_count.text = flipCount.toString()
     }
 
-    private fun onCardSelected(position: Int) {
-        val card = cardsAdapter.getItem(position) ?: return
+    private fun executeGameAction(gameAction: GameAction?) {
+        gameAction?.let { cardsAdapter.toggleSelection(it.card) }
+    }
 
-        if (!viewModel.isCardFlipped(card)) {
+    private fun onCardSelected(position: Int, card: Card) {
+        viewModel.onCardSelected(card)
+
+        /*if (!viewModel.isCardFlipped(card)) {
             flipCard(card, true)
         }
         viewModel.onCardSelected(card).observe(this, Observer { pair ->
             if (pair == null) return@Observer
             flipCard(pair.first, false)
             flipCard(pair.second, false)
-        })
+        })*/
     }
 
-    private fun flipCard(card: Card, showFront: Boolean) {
+    /*private fun flipCard(card: Card, showFront: Boolean) {
         val position = cardsAdapter.getItemPosition(card)
         val cardView = rv_cards.layoutManager?.findViewByPosition(position)
 
         val front = cardView?.findViewById<View>(R.id.card_front)
         val back = cardView?.findViewById<View>(R.id.card_back)
         FlipAnimator.flipView(this, front, back, showFront)
-    }
+    }*/
 
     private fun onGameFinished(score: Score) {
         val message = getString(R.string.dialog_message_game_finished, score.timeInSeconds.toFormattedDuration(), score.flipsCount)
@@ -138,7 +141,6 @@ class GameActivity : DaggerAppCompatActivity() {
 
     companion object {
         const val EXTRA_DIFFICULTY = "EXTRA_DIFFICULTY"
-        private const val STATE_DIFFICULTY = "STATE_DIFFICULTY"
 
         fun start(context: Context, difficulty: Difficulty) {
             val intent = Intent(context, GameActivity::class.java).apply {

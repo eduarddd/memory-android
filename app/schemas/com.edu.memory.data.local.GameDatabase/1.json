@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7f6c72c199cb6ff9894051fcd8ca1d79",
+    "identityHash": "8e5a4176e9dbe7949a96ccbff4553906",
     "entities": [
       {
         "tableName": "Score",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `difficulty` TEXT NOT NULL, `timeInSeconds` INTEGER NOT NULL, `flipsCount` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `difficulty` TEXT NOT NULL, `timeInSeconds` INTEGER, `flipsCount` INTEGER, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -24,13 +24,13 @@
             "fieldPath": "timeInSeconds",
             "columnName": "timeInSeconds",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "flipsCount",
             "columnName": "flipsCount",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -45,7 +45,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"7f6c72c199cb6ff9894051fcd8ca1d79\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"8e5a4176e9dbe7949a96ccbff4553906\")"
     ]
   }
 }

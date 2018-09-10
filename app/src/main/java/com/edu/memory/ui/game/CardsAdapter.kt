@@ -1,6 +1,7 @@
 package com.edu.memory.ui.game
 
 import android.support.v7.widget.RecyclerView
+import android.util.SparseBooleanArray
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -12,19 +13,21 @@ import com.edu.memory.extensions.determineCardItemWidth
 import com.edu.memory.extensions.inflateView
 import com.edu.memory.model.Card
 
+
 /**
  * Created by edu
  */
 class CardsAdapter : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
 
     private var items: MutableList<Card> = mutableListOf()
-    var onItemClickListener: ((Int) -> Unit)? = null
+    private var selectedItems: SparseBooleanArray = SparseBooleanArray()
+    var onItemClickListener: ((Int, Card) -> Unit)? = null
 
     override fun onCreateViewHolder(container: ViewGroup, p1: Int): CardViewHolder {
         val itemWidth = determineCardItemWidth(container, items.size)
         val itemHeight = determineCardItemHeight(container, items.size)
 
-        return CardViewHolder(inflateView(container, R.layout.item)).apply {
+        return CardViewHolder(inflateView(container, R.layout.item_card)).apply {
             itemView.layoutParams.width = itemWidth
             itemView.layoutParams.height = itemHeight
         }
@@ -35,9 +38,37 @@ class CardsAdapter : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
         val card = items[position]
 
-        holder.itemView.setOnClickListener { onItemClickListener?.invoke(position) }
+        holder.itemView.setOnClickListener { onItemClickListener?.invoke(position, card) }
         holder.bindCard(card)
     }
+
+    fun toggleSelection(card: Card) {
+        toggleSelection(getItemPosition(card))
+    }
+
+    fun toggleSelection(position: Int) {
+        if (selectedItems.get(position, false)) {
+            selectedItems.delete(position)
+        } else {
+            selectedItems.put(position, true)
+        }
+        notifyItemChanged(position)
+    }
+
+    fun isSelected(item: Card): Boolean {
+        return selectedItems.indexOfKey(getItemPosition(item)) >= 0
+    }
+
+    fun getSelectedItems(): List<Card> {
+        val result = mutableListOf<Card>()
+
+        for (i in 0 until selectedItems.size()) {
+            val index = selectedItems.keyAt(i)
+            result.add(items[index])
+        }
+        return result
+    }
+
 
     fun setItems(items: List<Card>?) {
         if (items == null) {
@@ -58,18 +89,21 @@ class CardsAdapter : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
         return items.indexOf(card)
     }
 
-    class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val frontImageView: ImageView = itemView.findViewById(R.id.iv_background)
-        private val backImageView: ImageView = itemView.findViewById(R.id.iv_background_back)
+    inner class CardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val background: ImageView = itemView.findViewById(R.id.iv_background)
 
         fun bindCard(card: Card) {
-            frontImageView.clipToOutline = true
-            GlideApp.with(itemView.context)
-                    .load(card.photoUrl)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .centerCrop()
-                    .into(frontImageView)
-            backImageView.setImageResource(R.drawable.ic_card_back)
+            background.clipToOutline = true
+
+            if (isSelected(card)) {
+                GlideApp.with(itemView.context)
+                        .load(card.photoUrl)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .centerCrop()
+                        .into(background)
+            } else {
+                background.setImageResource(R.drawable.ic_card_back)
+            }
         }
     }
 }
