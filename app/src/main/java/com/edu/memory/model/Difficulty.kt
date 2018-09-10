@@ -5,8 +5,8 @@ package com.edu.memory.model
  *
  * Represents the differents levels of difficulty of the game
  */
-enum class Difficulty(val pairsCount: Int) {
-    EASY(pairsCount = 8),
-    MEDIUM(pairsCount = 18),
-    HARD(pairsCount = 32)
+enum class Difficulty(val pairCount: Int) {
+    EASY(pairCount = 8),
+    MEDIUM(pairCount = 18),
+    HARD(pairCount = 32)
 }

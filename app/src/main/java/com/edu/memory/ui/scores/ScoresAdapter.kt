@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.edu.memory.R
 import com.edu.memory.extensions.inflateView
-import com.edu.memory.extensions.toFormattedTime
+import com.edu.memory.extensions.toFormattedDuration
 import com.edu.memory.model.Score
 
 /**
@@ -38,7 +38,7 @@ class ScoresAdapter : RecyclerView.Adapter<ScoresAdapter.ScoreViewHolder>() {
 
         fun bindScore(score: Score) {
             ranking.text = (adapterPosition + 1).toString()
-            time.text = score.timeInSeconds.toFormattedTime()
+            time.text = score.timeInSeconds.toFormattedDuration()
             flips.text = score.flipsCount.toString()
         }
 

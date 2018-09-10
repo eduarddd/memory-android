@@ -9,12 +9,9 @@ import com.edu.memory.data.PhotosRepository
 import com.edu.memory.data.Resource
 import com.edu.memory.data.ScoresRepository
 import com.edu.memory.data.Status
-import com.edu.memory.data.flickrapi.PhotoSearchResponse
+import com.edu.memory.data.flickrapi.PhotoObject
 import com.edu.memory.data.flickrapi.getDownloadUrl
-import com.edu.memory.extensions.downloadPhotos
-import com.edu.memory.model.Card
-import com.edu.memory.model.Difficulty
-import com.edu.memory.model.Score
+import com.edu.memory.model.*
 import java.util.*
 import javax.inject.Inject
 import kotlin.concurrent.schedule
@@ -23,9 +20,12 @@ import kotlin.concurrent.schedule
  * Created by edu
  */
 class GameViewModel
-@Inject constructor(val difficulty: Difficulty,
+@Inject constructor(difficulty: Difficulty,
                     val photosRepository: PhotosRepository,
                     val scoresRepository: ScoresRepository) : ViewModel() {
+
+    val game: Game
+    val flips: MutableList<Flip> = mutableListOf()
 
     val cards: MediatorLiveData<Resource<List<Card>>> = MediatorLiveData()
     val timeInSeconds: MutableLiveData<Long> = MutableLiveData()
@@ -38,8 +38,9 @@ class GameViewModel
     private lateinit var timer: CountDownTimer
 
     init {
-        initGame()
+        game = Game(startDate = Calendar.getInstance(), difficulty = difficulty)
         pairFlipCount.value = 0
+        initGame()
     }
 
     /**
@@ -90,11 +91,12 @@ class GameViewModel
     }
 
     private fun onGameFinished() {
+        game.endDate = Calendar.getInstance()
         saveScore()
     }
 
     private fun saveScore() {
-        val score = Score(difficulty, timeInSeconds.value!!, pairFlipCount.value!!)
+        val score = Score(game.difficulty, timeInSeconds.value!!, pairFlipCount.value!!)
         scoresRepository.saveScore(score)
         this.score.value = score
     }
@@ -103,42 +105,36 @@ class GameViewModel
      * Initializes the game, downloading a list of photos for the cards and initializing them.
      */
     private fun initGame() {
-        val searchPhotosSource = photosRepository.searchPhotos("kittens")
+        val searchPhotosSource = photosRepository.fetchPhotos("kittens", game.difficulty.pairCount)
         cards.addSource(searchPhotosSource) { photos ->
             when (photos?.status) {
                 Status.ERROR -> cards.value = Resource.error("")
                 Status.LOADING -> cards.value = Resource.loading()
                 Status.SUCCESS -> {
                     cards.removeSource(searchPhotosSource)
-                    downloadPhotos(photos.data)
                     initCards(photos.data)
+                    initTimer()
                 }
             }
         }
     }
 
-    private fun initCards(photos: List<PhotoSearchResponse.PhotoObject>?) {
+    private fun initCards(photos: List<PhotoObject>?) {
         val cards = mutableListOf<Card>()
 
-        for (i in 0 until difficulty.pairsCount) {
-            val photo = photos?.get(i)
-            val cardA = Card(pairNumber = i, photoUrl = photo.getDownloadUrl())
-            val cardB = Card(pairNumber = i, photoUrl = photo.getDownloadUrl())
-            cards.add(cardA)
-            cards.add(cardB)
+        photos?.let {
+            for (i in 0 until game.difficulty.pairCount) {
+                val photo = it[i]
+                val cardA = Card(pairNumber = i, photoUrl = photo.getDownloadUrl())
+                val cardB = Card(pairNumber = i, photoUrl = photo.getDownloadUrl())
+                cards.add(cardA)
+                cards.add(cardB)
+            }
         }
         cards.shuffle()
-        startGame(cards)
-    }
-
-    private fun startGame(cards: List<Card>) {
         this.cards.value = Resource.success(cards)
-        initTimer()
     }
 
-    /**
-     * Initialize the timer that will count the time of the game.
-     */
     private fun initTimer() {
         timer = object : CountDownTimer(MAX_TIME_MILLIS, 1000) {
             override fun onFinish() {}

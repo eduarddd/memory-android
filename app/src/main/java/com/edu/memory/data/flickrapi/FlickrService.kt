@@ -18,6 +18,7 @@ interface FlickrService {
                      @Query("api_key") apiKey: String,
                      @Query("privacy_filter") privacyFilter: Int = 1,
                      @Query("page") page: Int = Random().nextInt(100),
+                     @Query("per_page") itemCount: Int,
                      @Query("format") format: String = "json",
                      @Query("nojsoncallback") noJsonCallback: Int = 1): Observable<PhotoSearchResponse>
 }

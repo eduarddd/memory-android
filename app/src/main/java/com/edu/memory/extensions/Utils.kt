@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import com.edu.memory.App
 import com.edu.memory.GlideApp
 import com.edu.memory.R
-import com.edu.memory.data.flickrapi.PhotoSearchResponse
+import com.edu.memory.data.flickrapi.PhotoObject
 import com.edu.memory.data.flickrapi.getDownloadUrl
 import io.reactivex.Observable
 import io.reactivex.Observer
@@ -35,11 +35,22 @@ fun Long?.toFormattedTime(): String {
     return "$minutes:$seconds"
 }
 
+fun Long?.toFormattedDuration(): String {
+    val seconds = this?.div(1000) ?: return "00:00"
+    val absSeconds = Math.abs(seconds)
+    val positive = String.format(
+            "%d:%02d:%02d",
+            absSeconds / 3600,
+            absSeconds % 3600 / 60,
+            absSeconds % 60)
+    return if (seconds < 0) "-$positive" else positive
+}
+
 fun inflateView(container: ViewGroup, @LayoutRes layoutId: Int): View {
     return LayoutInflater.from(container.context).inflate(layoutId, container, false)
 }
 
-fun downloadPhotos(photos: List<PhotoSearchResponse.PhotoObject>?) {
+fun savePhotosInCache(photos: List<PhotoObject>?) {
     photos?.forEach { photo ->
         GlideApp.with(App.instance)
                 .load(photo.getDownloadUrl())

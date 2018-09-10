@@ -4,8 +4,10 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import com.edu.memory.BuildConfig
 import com.edu.memory.data.flickrapi.FlickrService
+import com.edu.memory.data.flickrapi.PhotoObject
 import com.edu.memory.data.flickrapi.PhotoSearchResponse
 import com.edu.memory.extensions.apiSubscribe
+import com.edu.memory.extensions.savePhotosInCache
 import javax.inject.Inject
 
 /**
@@ -14,13 +16,18 @@ import javax.inject.Inject
 class PhotosRepository
 @Inject constructor(val flickrService: FlickrService) {
 
-    fun searchPhotos(searchQuery: String): LiveData<Resource<List<PhotoSearchResponse.PhotoObject>?>> {
-        val result = MutableLiveData<Resource<List<PhotoSearchResponse.PhotoObject>?>>()
+    fun fetchPhotos(searchQuery: String, count: Int): LiveData<Resource<List<PhotoObject>?>> {
+        val result = MutableLiveData<Resource<List<PhotoObject>?>>()
         result.value = Resource.loading()
 
-        flickrService.searchPhotos(searchQuery = searchQuery, apiKey = BuildConfig.FLICKR_API_KEY)
+        flickrService
+                .searchPhotos(
+                        searchQuery = searchQuery,
+                        apiKey = BuildConfig.FLICKR_API_KEY,
+                        itemCount = count)
                 .apiSubscribe(object : ApiObserver<PhotoSearchResponse>() {
                     override fun onSuccess(response: PhotoSearchResponse) {
+                        savePhotosInCache(response.responseObject?.photoList)
                         result.value = Resource.success(response.responseObject?.photoList)
                     }
 

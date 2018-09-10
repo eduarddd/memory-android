@@ -28,26 +28,26 @@ class PhotoSearchResponse: Serializable {
         @SerializedName("photo")
         val photoList: List<PhotoObject>? = null
     }
-
-    inner class PhotoObject: Serializable {
-        @SerializedName("id")
-        val id: String? = null
-
-        @SerializedName("owner")
-        val owner: String? = null
-
-        @SerializedName("secret")
-        val secret: String? = null
-
-        @SerializedName("server")
-        val serverId: String? = null
-
-        @SerializedName("farm")
-        val farmId: String? = null
-    }
 }
 
-fun PhotoSearchResponse.PhotoObject?.getDownloadUrl(): String {
+class PhotoObject : Serializable {
+    @SerializedName("id")
+    val id: String? = null
+
+    @SerializedName("owner")
+    val owner: String? = null
+
+    @SerializedName("secret")
+    val secret: String? = null
+
+    @SerializedName("server")
+    val serverId: String? = null
+
+    @SerializedName("farm")
+    val farmId: String? = null
+}
+
+fun PhotoObject?.getDownloadUrl(): String {
     if (this == null) return ""
     return "https://farm$farmId.staticflickr.com/$serverId/${id}_$secret.jpg"
 }

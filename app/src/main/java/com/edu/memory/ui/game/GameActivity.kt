@@ -13,7 +13,7 @@ import com.edu.memory.R
 import com.edu.memory.data.Status
 import com.edu.memory.extensions.setVisible
 import com.edu.memory.extensions.showToast
-import com.edu.memory.extensions.toFormattedTime
+import com.edu.memory.extensions.toFormattedDuration
 import com.edu.memory.model.Card
 import com.edu.memory.model.Difficulty
 import com.edu.memory.model.Score
@@ -39,12 +39,12 @@ class GameActivity : DaggerAppCompatActivity() {
         setSupportActionBar(toolbar_top)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         title = ""
-        initViewModel(savedInstanceState)
+        initViewModel()
         initRecyclerView()
     }
 
     @SuppressLint("SetTextI18n")
-    private fun initViewModel(savedInstanceState: Bundle?) {
+    private fun initViewModel() {
         viewModel.cards.observe(this, Observer {
             when (it?.status) {
                 Status.SUCCESS -> {
@@ -69,7 +69,7 @@ class GameActivity : DaggerAppCompatActivity() {
 
         rv_cards.apply {
             setHasFixedSize(true)
-            val columns = sqrt(viewModel.difficulty.pairsCount * 2.0)
+            val columns = sqrt(viewModel.game.difficulty.pairCount * 2.0)
             layoutManager = GridLayoutManager(this@GameActivity, columns.toInt())
             adapter = cardsAdapter
             addItemDecoration(CardItemDecoration(this@GameActivity, R.dimen.card_grid_separation))
@@ -77,7 +77,7 @@ class GameActivity : DaggerAppCompatActivity() {
     }
 
     private fun displayTime(timeInSeconds: Long?) {
-        tv_time_count.text = timeInSeconds.toFormattedTime()
+        tv_time_count.text = timeInSeconds.toFormattedDuration()
     }
 
     private fun displayFlipCount(flipCount: Int?) {
@@ -107,7 +107,7 @@ class GameActivity : DaggerAppCompatActivity() {
     }
 
     private fun onGameFinished(score: Score) {
-        val message = getString(R.string.dialog_message_game_finished, score.timeInSeconds.toFormattedTime(), score.flipsCount)
+        val message = getString(R.string.dialog_message_game_finished, score.timeInSeconds.toFormattedDuration(), score.flipsCount)
         AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_title_game_finished)
                 .setMessage(message)
@@ -126,11 +126,6 @@ class GameActivity : DaggerAppCompatActivity() {
 
     override fun onBackPressed() {
         showStopGameConfirmation()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putSerializable(STATE_DIFFICULTY, viewModel.difficulty)
     }
 
     private fun showStopGameConfirmation() {
