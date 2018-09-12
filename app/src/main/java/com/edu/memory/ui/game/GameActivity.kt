@@ -84,7 +84,10 @@ class GameActivity : DaggerAppCompatActivity() {
     }
 
     private fun executeGameAction(gameAction: GameAction?) {
-        gameAction?.let { cardsAdapter.toggleSelection(it.card) }
+        when (gameAction?.action) {
+            Action.SELECT_CARD -> { cardsAdapter.toggleSelection(gameAction.card, true) }
+            Action.DESELECT_CARD -> { cardsAdapter.toggleSelection(gameAction.card, false) }
+        }
     }
 
     private fun onCardSelected(position: Int, card: Card) {

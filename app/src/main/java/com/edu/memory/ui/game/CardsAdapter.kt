@@ -42,15 +42,15 @@ class CardsAdapter : RecyclerView.Adapter<CardsAdapter.CardViewHolder>() {
         holder.bindCard(card)
     }
 
-    fun toggleSelection(card: Card) {
-        toggleSelection(getItemPosition(card))
+    fun toggleSelection(card: Card, select: Boolean) {
+        toggleSelection(getItemPosition(card), select)
     }
 
-    fun toggleSelection(position: Int) {
-        if (selectedItems.get(position, false)) {
-            selectedItems.delete(position)
-        } else {
+    fun toggleSelection(position: Int, select: Boolean) {
+        if (select) {
             selectedItems.put(position, true)
+        } else {
+            selectedItems.delete(position)
         }
         notifyItemChanged(position)
     }

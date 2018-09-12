@@ -11,6 +11,7 @@ import com.edu.memory.data.Status
 import com.edu.memory.data.flickrapi.PhotoObject
 import com.edu.memory.data.flickrapi.getDownloadUrl
 import com.edu.memory.extensions.addItem
+import com.edu.memory.extensions.removeItem
 import com.edu.memory.model.*
 import java.util.*
 import javax.inject.Inject
@@ -30,9 +31,8 @@ class GameViewModel
 
     val score: MutableLiveData<Score> = MutableLiveData()
 
-    val flippedCards: MutableLiveData<MutableList<Card>> = MutableLiveData()
+    val flippedCards: MutableList<Card> = mutableListOf()
     val gameAction: ActionLiveData<GameAction> = ActionLiveData()
-    var selectedPair: Pair<Card, Card?>? = null
 
     val timeInSeconds: MutableLiveData<Long> = MutableLiveData()
     private lateinit var timer: CountDownTimer
@@ -73,35 +73,41 @@ class GameViewModel
     }
 
     fun onCardSelected(card: Card) {
-        if (flippedCards.value?.contains(card) == true) return
+        if (flippedCards.contains(card)) return
+
         gameAction.value = GameAction.select(card)
-        if (selectedPair == null) {
+
+        if (flippedCards.size.rem(2) == 1) {
+            onPairSelected(Pair(flippedCards.last(), card))
+        }
+        flippedCards.add(card)
+        /*if (selectedPair == null) {
             selectedPair = Pair(card, null)
             return
         } else {
             selectedPair = Pair(selectedPair!!.first, card)
             onPairSelected(Pair(selectedPair!!.first, card))
-        }
+        }*/
     }
 
     private fun onPairSelected(pair: Pair<Card, Card>) {
         val flip = Flip(pair.first, pair.second)
+        flips.addItem(flip)
 
         if (pair.first.pairNumber == pair.second.pairNumber) {
-            flippedCards.addItem(pair.first)
-            flippedCards.addItem(pair.second)
         } else {
+            flippedCards.remove(pair.first)
+            flippedCards.remove(pair.second)
             Timer().schedule(HIDE_CARDS_DELAY) {
                 gameAction.postValue(GameAction.deselect(pair.first))
-                gameAction.postValue(GameAction.deselect(pair.second))
+                Timer().schedule(HIDE_CARDS_DELAY) {
+                    gameAction.postValue(GameAction.deselect(pair.second))
+                }
             }
         }
-        if (cards.value?.data?.size == flippedCards.value?.size) {
+        if (cards.value?.data?.size == flippedCards.size) {
             onGameFinished()
         }
-
-        flips.addItem(flip)
-        selectedPair = null
     }
 
     private fun onGameFinished() {
@@ -120,7 +126,7 @@ class GameViewModel
             override fun onFinish() {}
             override fun onTick(millisUntilFinished: Long) {
                 val seconds = (MAX_TIME_MILLIS - millisUntilFinished) / 1000
-                timeInSeconds.value = seconds
+                //timeInSeconds.value = seconds
             }
         }.start()
     }

@@ -29,22 +29,15 @@ fun View?.setVisible(visible: Boolean) {
     this?.visibility = if (visible) VISIBLE else GONE
 }
 
-fun Long?.toFormattedTime(): String {
-    if (this == null) return "00:00"
-    val minutes = (this / 60)
-    val seconds = (this % 60)
-    return "$minutes:$seconds"
-}
-
 fun Long?.toFormattedDuration(): String {
-    val seconds = this?.div(1000) ?: return "00:00"
-    val absSeconds = Math.abs(seconds)
+    this ?: return "00:00"
+    val absSeconds = Math.abs(this)
     val positive = String.format(
             "%d:%02d:%02d",
             absSeconds / 3600,
             absSeconds % 3600 / 60,
             absSeconds % 60)
-    return if (seconds < 0) "-$positive" else positive
+    return if (this < 0) "-$positive" else positive
 }
 
 fun inflateView(container: ViewGroup, @LayoutRes layoutId: Int): View {
@@ -72,8 +65,17 @@ fun determineCardItemHeight(container: View, itemCount: Int): Int {
 }
 
 fun <T> MutableLiveData<out List<T>>.addItem(item: T) {
-    value?.toMutableList()?.let {
+    val oldList = value ?: listOf()
+    oldList.toMutableList().let {
         it.add(item)
+        value = it
+    }
+}
+
+fun <T> MutableLiveData<out List<T>>.removeItem(item: T) {
+    val oldList = value ?: listOf()
+    oldList.toMutableList().let {
+        it.remove(item)
         value = it
     }
 }
